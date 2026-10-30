@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>嫁金钗·女子抉择局</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", serif;
+        }
+        body {
+            background: #2b0c14;
+            color: #f4e9d8;
+            min-height: 100vh;
+            padding: 20px 16px;
+            background-image: radial-gradient(circle at 50% 20%, #591625 0%, #2b0c14 60%, #18070b 100%);
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        /* 开始页 */
+        .start-wrap {
+            text-align: center;
+            padding-top: 80px;
+        }
+        .main-title {
+            font-size: 28px;
+            color: #d4af37;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+        .sub-title {
+            font-size: 16px;
+            color: #e2c899;
+            margin-bottom: 32px;
+        }
+        .desc-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #e9dcc9;
+            margin-bottom: 48px;
+            padding: 0 10px;
+        }
+        .btn {
+            display: block;
+            width: 80%;
+            margin: 0 auto;
+            padding: 14px 0;
+            background: linear-gradient(135deg, #9b2c3e, #d4af37);
+            border: none;
+            border-radius: 99px;
+            color: #fff;
+            font-size: 17px;
+            letter-spacing: 2px;
+        }
+        .btn:active {
+            opacity: 0.85;
+        }
+        /* 答题页 */
+        .q-wrap {
+            padding-top: 40px;
+        }
+        .progress {
+            text-align: center;
+            color: #d4af37;
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+        .question {
+            font-size: 18px;
+            line-height: 1.7;
+            margin-bottom: 32px;
+            color: #f7eddc;
+        }
+        .opt-item {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .opt-item:active {
+            background: rgba(212,175,55,0.18);
+            border-color: #d4af37;
+        }
+        /* 结果页 */
+        .result-wrap {
+            padding-top: 30px;
+        }
+        .result-card {
+            background: rgba(43,12,20,0.85);
+            border: 1px solid #d4af37;
+            border-radius: 16px;
+            padding: 26px 20px;
+            text-align: center;
+            box-shadow: 0 0 24px rgba(212,175,55,0.2);
+        }
+        .res-tag {
+            font-size: 22px;
+            color: #d4af37;
+            margin-bottom:14px;
+        }
+        .res-desc {
+            font-size:15px;
+            line-height:1.7;
+            color:#f4e9d8;
+            text-align:left;
+            margin-bottom:20px;
+        }
+        .res-slogan {
+            font-size:16px;
+            color:#e2c899;
+            font-style:italic;
+            margin-bottom:24px;
+        }
+        .foot-mark {
+            font-size:13px;
+            color:#c9a878;
+            margin-top:10px;
+        }
+        .restart-btn {
+            margin-top:32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 开始页 -->
+        <div id="page-start" class="page active">
+            <div class="start-wrap">
+                <h1 class="main-title">嫁金钗·女子抉择局</h1>
+                <p class="sub-title">一念抉择，看清你是金钗里哪一类人</p>
+                <p class="desc-text">
+                    剧中重重困局摆在眼前，每一次选择，都藏着你的本心。<br>
+                    完成9道抉择题，测出你最像《嫁金钗》中的哪位女子。
+                </p>
+                <button class="btn" id="startBtn">开始测试</button>
+            </div>
+        </div>
+
+        <!-- 答题页 -->
+        <div id="page-question" class="page">
+            <div class="q-wrap">
+                <div class="progress" id="progress">1/9</div>
+                <div class="question" id="qText"></div>
+                <div id="optBox"></div>
+            </div>
+        </div>
+
+        <!-- 结果页 -->
+        <div id="page-result" class="page">
+            <div class="result-wrap">
+                <div class="result-card" id="shareCard">
+                    <div class="res-tag" id="resTag"></div>
+                    <div class="res-slogan" id="resSlogan"></div>
+                    <div class="res-desc" id="resDesc"></div>
+                    <div class="foot-mark">《嫁金钗》人格测试</div>
+                </div>
+                <button class="btn restart-btn" id="restartBtn">再测一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 题库数据
+        const questionList = [
+            {
+                q: "你被家族逼迫，要替别人远嫁冲喜，不去便会连累至亲，你会怎么做？",
+                opts: [
+                    {text:"表面应下稳住众人，暗中收集把柄，待到时机成熟，为自己挣一条退路", target:"魏娆"},
+                    {text:"当众撕破脸面，直言绝不从命，哪怕当场和家族决裂也不肯委屈自己", target:"君黛"},
+                    {text:"先假意顺从保全恩人，伺机寻找机会报答，必要时愿意以身相护", target:"碧桃"},
+                    {text:"权衡利弊选择自保，答应出嫁，往后长久困在愧疚之中", target:"周芙"}
+                ]
+            },
+            {
+                q: "你在府中被位高的下人刻意刁难、暗中给你使绊子，旁人都冷眼旁观，你会？",
+                opts: [
+                    {text:"不动声色记下对方所有把柄，顺着对方的节奏，慢慢布下圈套等他自投罗网", target:"魏姝"},
+                    {text:"当场发难，直接揭穿对方，言语锋利，不给对方留半点体面", target:"君黛"},
+                    {text:"暂时隐忍不发作，若日后对方落难，不会落井下石，但也绝不心软帮扶", target:"周芙"},
+                    {text:"直接去找能护着你的长辈撑腰，撒委屈讨公道，凭心意行事", target:"魏婵"}
+                ]
+            },
+            {
+                q: "你发现身边亲近之人被收买，暗中做眼线盯着你的一举一动，你会？",
+                opts: [
+                    {text:"假装全然不知情，顺水推舟放出假消息，借此人达成自己的计划", target:"郭虞凤"},
+                    {text:"心中难过，但念及对方曾有恩于你，给对方一次选择的机会，盼他回头", target:"碧桃"},
+                    {text:"立刻疏远戒备，不会再交付真心，但不会主动设计去害对方", target:"魏娆"},
+                    {text:"怒火上头，直接当众戳穿，和此人一刀两断", target:"君黛"}
+                ]
+            },
+            {
+                q: "你手握一个能稳固自身地位的秘密，但守住秘密，就要牺牲无辜之人，你会？",
+                opts: [
+                    {text:"毫不犹豫掩盖真相，牺牲旁人，只要能保住自己现有的一切", target:"魏恒娥"},
+                    {text:"拒绝用旁人的性命换安稳，宁可自己承担风险，也要守住良知底线", target:"魏娆"},
+                    {text:"内心摇摆，优先保全自己，事后长久陷入后悔自责", target:"周芙"},
+                    {text:"拉拢可以利用的人，借别人的手处理麻烦，自己置身事外", target:"郭虞凤"}
+                ]
+            },
+            {
+                q: "曾经狠狠伤害过你的人，如今落魄，低头前来向你求和示弱，你会？",
+                opts: [
+                    {text:"面上温和接纳，心中记着旧账，后续看对方价值再做打算", target:"魏姝"},
+                    {text:"绝不原谅，直接回绝，恩怨分明，不想再有任何牵扯", target:"君黛"},
+                    {text:"不会主动报复，但也不会再信任，保持距离互不打扰", target:"魏娆"},
+                    {text:"心软动摇，容易放下过往芥蒂，选择原谅对方", target:"魏婵"}
+                ]
+            },
+            {
+                q: "你看重的晚辈/心腹陷入死局，赌一把还有生机，但代价极大，你愿意为TA押上自己的全部筹码吗？",
+                opts: [
+                    {text:"愿意，眼光笃定，只要是自己要护的人，敢放手全力一搏", target:"寿安君"},
+                    {text:"权衡利弊，只在有利可图的时候出手，不会做亏本的买卖", target:"郭虞凤"},
+                    {text:"舍不得自身权势安稳，选择旁观，事后常常回想觉得遗憾", target:"周芙"},
+                    {text:"先假意帮扶，所有举动都在算计之内，一切以自己的目标为先", target:"魏姝"}
+                ]
+            },
+            {
+                q: "身世真相揭开，你发现自己的婚事、人生从一开始就被算计，你会？",
+                opts: [
+                    {text:"冷静梳理所有线索，筹谋离开、拿回属于自己的东西，不再依附任何人", target:"魏娆"},
+                    {text:"情绪压不住，立刻爆发，不顾一切去找始作俑者对峙", target:"君黛"},
+                    {text:"接受现实，情绪上头胡乱行事，很少思考后续要承担的后果", target:"魏婵"},
+                    {text:"抓住这个变故当成机会，顺势布局，扭转局势抬高自己", target:"魏姝"}
+                ]
+            },
+            {
+                q: "有一个人曾舍命救下你，如今TA危难临头，需要你的帮助，你会？",
+                opts: [
+                    {text:"把恩情放在第一位，不惜代价站出来护他，哪怕要赌上性命", target:"碧桃"},
+                    {text:"评估风险，如果会毁掉自己拥有的一切，选择沉默自保", target:"魏恒娥"},
+                    {text:"不会盲目拼命，先想好万全之策，在保全自己的前提下尽力相助", target:"魏娆"},
+                    {text:"看局势风向，借这件事拉拢其他势力，把恩情变成自己的筹码", target:"郭虞凤"}
+                ]
+            },
+            {
+                q: "家族要你牺牲自己，去换取整个家族长久的荣华富贵，你内心第一选择是？",
+                opts: [
+                    {text:"绝不任人摆布，为自己而活，就算和家族对立也不退让", target:"君黛"},
+                    {text:"若这个人是你一心要护着的，甘愿牺牲自身利益全力护住", target:"寿安君"},
+                    {text:"为了地位与荣光，接受安排，牺牲自我，扫清路上所有阻碍", target:"魏恒娥"},
+                    {text:"先假意应允，暗地里规划别的出路，温柔周旋、步步谋算", target:"魏姝"}
+                ]
+            }
+        ];
+
+        // 结果优先级（并列时靠前优先）
+        const priority = ["魏娆","君黛","碧桃","周芙","魏姝","魏婵","魏恒娥","郭虞凤","寿安君"];
+        // 结果文案+金句
+        const resultMap = {
+            "魏娆":{
+                tag:"魏娆｜清醒破局者",
+                slogan:"万般算计皆看破，我命由我不由人",
+                desc:"你擅长隐忍蛰伏，不冲动逞一时之快，看透人心与阴谋之后，懂得及时止损，不靠任何人兜底，亲手为自己劈开生路。你温柔却有棱角，心软但底线清晰，困境里永远优先掌控自己的命运。"
+            },
+            "君黛":{
+                tag:"君黛｜烈性自燃者",
+                slogan:"爱恨坦荡无遮藏，宁为烈火不做霜",
+                desc:"爱恨直白浓烈，恩怨摆在明面上，受不得半分委屈。你快意恩仇，敢直面冲突，从不委屈讨好。只是性子太烈，爆发时容易不留后路，热烈耀眼，也容易灼伤自己。"
+            },
+            "碧桃":{
+                tag:"碧桃｜以命偿恩者",
+                slogan:"一寸真心酬知遇，敢以微躯挡风波",
+                desc:"你最重情义与知遇之恩，容易被真心打动。前期或许身不由己受人胁迫，一旦认定值得托付的人，便会全心全意，危难时刻愿意挺身而出，甚至以命相护，赤诚又勇敢。"
+            },
+            "周芙":{
+                tag:"周芙｜自保追悔者",
+                slogan:"一念求安终身憾，长夜时时悔当初",
+                desc:"危难来临之时，本能优先保全自己，是刻在骨子里的谨慎。可你本心不坏，选择之后常常被愧疚裹挟，反复回想，如果当初换一条路会不会更好，永远困在选择后的遗憾里。"
+            },
+            "魏姝":{
+                tag:"魏姝｜温柔刀布局者",
+                slogan:"笑里藏谋徐徐落，软语亦可布乾坤",
+                desc:"外表温和妥帖，待人彬彬有礼，内里心思缜密步步算计。你很擅长伪装情绪，所有和善都是你的铠甲，为了心中目标耐心筹谋，不动声色之间，就已经布好了棋局。"
+            },
+            "魏婵":{
+                tag:"魏婵｜骄纵任性者",
+                slogan:"心随喜怒随心走，不识人间万般险",
+                desc:"一直被偏爱呵护，行事跟着情绪走，喜欢就靠近，不悦就发作。没有太多弯弯绕绕，很少预判后果。鲜活直白是你的优点，但意气用事，常常让自己卷入不必要的风波。"
+            },
+            "魏恒娥":{
+                tag:"魏恒娥｜偏执冷酷者",
+                slogan:"权位为根情为土，凡挡前路皆可抛",
+                desc:"你把自身权位看得最重，执念极强。为守住自己想要的位置，可以割舍情谊、牺牲旁人。目标坚定冷酷果决，很少共情他人，一切阻碍你的人和事，都可以被舍弃。"
+            },
+            "郭虞凤":{
+                tag:"郭虞凤｜幕后推手",
+                slogan:"身居暗室拨棋子，借得风浪报旧仇",
+                desc:"心机深沉，擅长藏在暗处借刀杀人。很少亲自站到风口浪尖，习惯挑动旁人矛盾，借别人之手达成自己的恨意与目的。冷静擅长算计，是棋盘背后落子的人。"
+            },
+            "寿安君":{
+                tag:"寿安君｜护短押注者",
+                slogan:"慧眼识人心可托，一掷千金护所爱",
+                desc:"眼光毒辣看人很准，有魄力敢赌。对于自己认可、想要护住的人，愿意倾尽所有筹码撑腰。不随意站队，一旦选择，就会坚定站在对方一侧，是很可靠的靠山。"
+            }
+        };
+
+        // 页面dom
+        const pageStart = document.getElementById("page-start");
+        const pageQ = document.getElementById("page-question");
+        const pageRes = document.getElementById("page-result");
+        const qText = document.getElementById("qText");
+        const optBox = document.getElementById("optBox");
+        const progressDom = document.getElementById("progress");
+        const resTag = document.getElementById("resTag");
+        const resSlogan = document.getElementById("resSlogan");
+        const resDesc = document.getElementById("resDesc");
+
+        let currentQ = 0;
+        let score = {};
+        priority.forEach(name=>score[name]=0);
+
+        function showPage(name){
+            document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+            if(name==="start") pageStart.classList.add("active");
+            if(name==="q") pageQ.classList.add("active");
+            if(name==="res") pageRes.classList.add("active");
+        }
+
+        function renderQuestion(){
+            const item = questionList[currentQ];
+            progressDom.innerText = `${currentQ+1}/${questionList.length}`;
+            qText.innerText = item.q;
+            optBox.innerHTML = "";
+            item.opts.forEach(opt=>{
+                const div = document.createElement("div");
+                div.className = "opt-item";
+                div.innerText = opt.text;
+                div.onclick = ()=>{
+                    score[opt.target] +=1;
+                    currentQ++;
+                    if(currentQ >= questionList.length){
+                        calcResult();
+                    }else{
+                        renderQuestion();
+                    }
+                }
+                optBox.appendChild(div);
+            })
+        }
+
+        function calcResult(){
+            let maxScore = -1;
+            let finalName = priority[0];
+            for(let name of priority){
+                if(score[name]>maxScore){
+                    maxScore = score[name];
+                    finalName = name;
+                }
+            }
+            const data = resultMap[finalName];
+            resTag.innerText = data.tag;
+            resSlogan.innerText = data.slogan;
+            resDesc.innerText = data.desc;
+            showPage("res");
+        }
+
+        function resetAll(){
+            currentQ = 0;
+            priority.forEach(name=>score[name]=0);
+            showPage("start");
+        }
+
+        document.getElementById("startBtn").onclick = ()=>{
+            renderQuestion();
+            showPage("q");
+        }
+        document.getElementById("restartBtn").onclick = resetAll;
+    </script>
+</body>
+</html>
